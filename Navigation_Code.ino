@@ -26,8 +26,8 @@ int ultrasound_right_pin= 3;
 int ultrasound_side_pin = 4;
 
 /********* Fakebot testing pin var **********/
-int ena = 5;  int enb = 3; 
-int in1 = 6;  int in3 = 2;
+int ena = 5;  int enb = 3; //need better name for the motor pins
+int in1 = 6;  int in3 = 2; 
 int in2 = 7;  int in4 = 1;
 int trig = 3;       //attach pin 3 to Trig
 int echo = 4;       //attach pin 4 to Echo
@@ -49,10 +49,10 @@ enes100::Marker marker;
  * created 4/14/2016    by Austin
  * initiate all system variables */
 void setup() {
+  Serial.begin(9600);
   RFSetup();
   motorSetup();
   singleSensorSetup();
-  //Serial.begin(9600); //already called by RF setup
   pinMode(green, OUTPUT);
   pinMode(red, OUTPUT);
 }
@@ -123,16 +123,15 @@ void loop() {
 
 /************** Setup Code ******************/
 /** RFSetup
- * Created by Keystone
- * Modified 4/17/2016   by Yichao Peng
+ * Created no date (Keystone)
+ * Modified 4/17/2016 (Yichao Peng)
  * The program setup the RF communication with GPS system
  */
 void RFSetup() {
    mySerial.begin(9600); //this establishes serial communication with
                         //something other than serial monitor, in this
                         //case RF communication with mission control
-  Serial.begin(9600); //this establishes regular serial communication
-                      //through USB to student's serial monitor
+  //Serial.begin(9600); //already called by main program
 
   pinMode(8, INPUT); //since pin 8 is RX, it receives as an input
   pinMode(9, OUTPUT); //since pin 9 is TX, it transmits as an output
@@ -143,6 +142,22 @@ void RFSetup() {
   //delay(1000);
 }
 
+/** singleSensorSetup
+ * setting up ultasonic sensor
+ */ 
+void singleSensorSetup() {
+  pinMode(trig, OUTPUT);
+  pinMode(A1,INPUT);    //this should not be hard coded
+  pinMode(trig2, OUTPUT);
+  pinMode(echo2, INPUT);
+  //Serial.begin(9600);
+}
+
+/** motorSetup
+ * Created (Paulo)
+ * Modified 4/14/2016 (Austin)
+ * setting up ultasonic sensor
+ */ 
 void motorSetup() {
   pinMode(ena,OUTPUT);
   pinMode(in1,OUTPUT);
@@ -180,9 +195,13 @@ void motorTurnLeft() {
   analogWrite(enb,255);
 }
 
+/** driveForwardXDirection
+ * Created 4/14/2016 (Austin)
+ * Caution: used for fakebot only, does not move robot
+ */ 
 void driveForwardXDirection(float xValue) {
   while (marker.x < xValue) {
-    Serial.println("happy");
+    //Serial.println("happy");
     motorStraight();
     RFLoop();
     digitalWrite(green, HIGH);
@@ -190,6 +209,10 @@ void driveForwardXDirection(float xValue) {
   }
 }
 
+/** driveForwardYDirection
+ * Created 4/14/2016 (Austin)
+ * Caution: use for fakebot only, does not move robot
+ */ 
 void driveForwardYDirection(float yValue) {
   float tolerance = .05;
   while (marker.y - yValue < -(tolerance) || marker.y - yValue > tolerance) {
@@ -200,6 +223,11 @@ void driveForwardYDirection(float yValue) {
   }
 }
 
+/** turnLeft
+ * Created 4/14/2016 (Austin)
+ * Turn the OSV to the desired orientation to the left
+ * Caution: modify code for real robot
+ */ 
 void turnLeft(float orientation) {
   float tolerance = (pi/12);
   while (marker.theta - orientation < -(tolerance)) {
@@ -210,10 +238,15 @@ void turnLeft(float orientation) {
   }
 }
 
+/** turnRight
+ * Created 4/14/2016 (Austin)
+ * Turn the OSV to the desired orientation to the right
+ * Caution: modify code for real robot
+ */ 
 void turnRight(float orientation) {
   float tolerance = (pi/12);
   while (marker.theta - orientation > tolerance) {
-    Serial.println("sad");
+    //Serial.println("sad");
     motorTurnRight();
     RFLoop();
     digitalWrite(green, HIGH);
@@ -223,6 +256,12 @@ void turnRight(float orientation) {
 
 /************** Sensor Code ******************/
 
+/** senseObstacle
+ * Created 4/14/2016 (Austin)
+ * Modified 
+ * Determines if the obsticle exist based on the ultrasonic reading
+ * Caution: need to modify for better path finding, does not remember past values
+ */ 
 boolean senseObstacle() {
   boolean obstacle;
   if (inches != 0) {
@@ -232,6 +271,11 @@ boolean senseObstacle() {
   }
 }
 
+/**RFLoop
+ * Created no date (Keystone)
+ * Read and print the x, y, theta orientation
+ * Caution: need to modify to return value or save value in global variable
+ */ 
 void RFLoop() {
     if(rf.receiveMarker(&marker, markerNumber)) //see if marker 104 is received
   {
@@ -242,25 +286,21 @@ void RFLoop() {
     Serial.println(marker.y);
     Serial.print("the orientation is ");
     Serial.println(marker.theta);
-    delay(500);
+    //delay(500);   //got rid of the delay
     rf.sendMessage("Panda Xpress Rocks");
   }
   else
   {
     rf.sendMessage("\nMarker is not registering\n");
     Serial.println("Marker is not registering");
-    delay(500);
+    //delay(500);
   }
 }
 
-void singleSensorSetup() {
-  pinMode(trig, OUTPUT);
-  pinMode(A1,INPUT);
-  pinMode(trig2, OUTPUT);
-  pinMode(echo2, INPUT);
-  Serial.begin(9600);
-}
-
+/** singleSensorLoop
+ * Calls display distance value from multiple sensor calls
+ * Caution: do not use when robot is moving
+ */ 
 void singleSensorLoop() {
   duration = multiplePing(repeatNo,interval,lower,upper); //average multiple ping
   // convert the time into a distance
@@ -271,6 +311,11 @@ void singleSensorLoop() {
   Serial.println();
 }
 
+/** multiplePing (for stationary measurement)
+ * Created 4/4/2016 (Yichao Peng)
+ * Average multiple pings to get more accuracy
+ * Used for measuring boulders - removed extreme values from calculation
+ */ 
 float multiplePing(int trialNo, int delayTime, long lowerLimit, long upperLimit) {
   float duration = 0;
   int trialNum = 0;
@@ -287,28 +332,25 @@ float multiplePing(int trialNo, int delayTime, long lowerLimit, long upperLimit)
   }
 }
 
+/** ultrasoundPing (single ping for on the move)
+ * (http://www.instructables.com/id/Easy-ultrasonic-4-pin-sensor-monitoring-hc-sr04/)
+ * Code triggers the ultrasonic sensor and reads the return raw duration in milliseconds
+ * Caution: only can read one sensor per round
+ * Caution: hard coded for A! now
+ */ 
 long ultrasoundPing() {
-  // Ping triggered by a HIGH pulse of 2 or more microseconds.
-  // Short LOW pulse beforehand ensures a clean HIGH pulse:
   digitalWrite(trig, LOW);
   delayMicroseconds(2);
   digitalWrite(trig, HIGH);
   delayMicroseconds(5);
   digitalWrite(trig, LOW);
-  
-  // The same pin is used to read the signal from the PING))): a HIGH
-  // pulse whose duration is the time (in microseconds) from the sending
-  // of the ping to the reception of its echo off of an object.
   return pulseIn(A1, HIGH);
 }
 
+/** microsecondToInches
+ * (http://www.instructables.com/id/Easy-ultrasonic-4-pin-sensor-monitoring-hc-sr04/)
+ * Return number of inches to the object
+ */ 
 float microsecondsToInches(long microseconds) {
-  // According to Parallax's datasheet for the PING))), there are
-  // 73.746 microseconds per inch (i.e. sound travels at 1130 feet per
-  // second). This gives the distance travelled by the ping, outbound
-  // and return, so we divide by 2 to get the distance of the obstacle.
-  // See: http://www.parallax.com/dl/docs/prod/acc/28015-PI...
   return microseconds / 73.746 / 2.0;
 }
-
-
