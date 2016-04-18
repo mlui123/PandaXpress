@@ -16,8 +16,8 @@ const long lower    = 150;    //only apply when averaging multiple trials
 int a = 1;  int b = 2; //Kaitlin, Maria, please verify the digital pin asssignments
 int c = 3;  int d = 4;
 int e = 5;  int f = 6;
-int g = 7;  int h = 8;
-int i = 9;  int j = 10;
+int g = 7;  int RF_TX = 8;
+int RF_RX = 9;  int j = 10;
 int k = 11;
 int photoresist_pin     = 0;
 int ultrasound_top_pin  = 1;
@@ -43,15 +43,25 @@ SoftwareSerial mySerial(8, 9); //RX is pin 8, TX is pin 9
 enes100::RfClient<SoftwareSerial> rf(&mySerial); 
 enes100::Marker marker;
 
+/*************** Main Code ******************/
+
+/** Setup
+ * created 4/14/2016    by Austin
+ * initiate all system variables */
 void setup() {
   RFSetup();
   motorSetup();
   singleSensorSetup();
-  Serial.begin(9600);
+  //Serial.begin(9600); //already called by RF setup
   pinMode(green, OUTPUT);
   pinMode(red, OUTPUT);
 }
 
+/** loop
+ * created 4/14/2016    by Austin
+ * main loop that navigate robot through different stages
+ * use the variable 'state' to track stages of navigation
+ */
 void loop() {
   Serial.println("woohoo");
   RFLoop();
@@ -111,13 +121,63 @@ void loop() {
 
 }
 
-boolean senseObstacle() {
-  boolean obstacle;
-  if (inches != 0) {
-    obstacle = true;
-  } else {
-    obstacle = false;
-  }
+/************** Setup Code ******************/
+/** RFSetup
+ * Created by Keystone
+ * Modified 4/17/2016   by Yichao Peng
+ * The program setup the RF communication with GPS system
+ */
+void RFSetup() {
+   mySerial.begin(9600); //this establishes serial communication with
+                        //something other than serial monitor, in this
+                        //case RF communication with mission control
+  Serial.begin(9600); //this establishes regular serial communication
+                      //through USB to student's serial monitor
+
+  pinMode(8, INPUT); //since pin 8 is RX, it receives as an input
+  pinMode(9, OUTPUT); //since pin 9 is TX, it transmits as an output
+  
+  rf.resetServer();
+  rf.sendMessage("\nTeam PandaXpress is Connected\n"); //sent to mission control
+  Serial.println("Team PandaXpress is Connected"); //sent to student's serial monitor
+  //delay(1000);
+}
+
+void motorSetup() {
+  pinMode(ena,OUTPUT);
+  pinMode(in1,OUTPUT);
+  pinMode(in2,OUTPUT);
+  pinMode(enb,OUTPUT);
+  pinMode(in3,OUTPUT);
+  pinMode(in4,OUTPUT);
+}
+
+/************** Motion Code *****************/
+void motorStraight() {
+  digitalWrite(in1,LOW);
+  digitalWrite(in2,HIGH);
+  analogWrite(ena,255);
+  digitalWrite(in3,LOW);
+  digitalWrite(in4,HIGH);
+  analogWrite(enb,255);
+}
+
+void motorTurnRight() {
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  analogWrite(ena,255);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  analogWrite(enb,255);
+}
+
+void motorTurnLeft() {
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  analogWrite(ena,255);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  analogWrite(enb,255);
 }
 
 void driveForwardXDirection(float xValue) {
@@ -161,20 +221,15 @@ void turnRight(float orientation) {
   }
 }
 
-void RFSetup() {
-   mySerial.begin(9600); //this establishes serial communication with
-                        //something other than serial monitor, in this
-                        //case RF communication with mission control
-  Serial.begin(9600); //this establishes regular serial communication
-                      //through USB to student's serial monitor
+/************** Sensor Code ******************/
 
-  pinMode(8, INPUT); //since pin 8 is RX, it receives as an input
-  pinMode(9, OUTPUT); //since pin 9 is TX, it transmits as an output
-  
-  rf.resetServer();
-  rf.sendMessage("\nTeam PandaXpress is Connected\n"); //sent to mission control
-  Serial.println("Team PandaXpress is Connected"); //sent to student's serial monitor
-  delay(1000);
+boolean senseObstacle() {
+  boolean obstacle;
+  if (inches != 0) {
+    obstacle = true;
+  } else {
+    obstacle = false;
+  }
 }
 
 void RFLoop() {
@@ -198,42 +253,6 @@ void RFLoop() {
   }
 }
 
-void motorSetup() {
-  pinMode(ena,OUTPUT);
-  pinMode(in1,OUTPUT);
-  pinMode(in2,OUTPUT);
-  pinMode(enb,OUTPUT);
-  pinMode(in3,OUTPUT);
-  pinMode(in4,OUTPUT);
-}
-
-void motorStraight() {
-  digitalWrite(in1,LOW);
-  digitalWrite(in2,HIGH);
-  analogWrite(ena,255);
-  digitalWrite(in3,LOW);
-  digitalWrite(in4,HIGH);
-  analogWrite(enb,255);
-}
-
-void motorTurnRight() {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  analogWrite(ena,255);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  analogWrite(enb,255);
-}
-
-void motorTurnLeft() {
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  analogWrite(ena,255);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-  analogWrite(enb,255);
-}
-
 void singleSensorSetup() {
   pinMode(trig, OUTPUT);
   pinMode(A1,INPUT);
@@ -251,6 +270,7 @@ void singleSensorLoop() {
   Serial.print("in");
   Serial.println();
 }
+
 float multiplePing(int trialNo, int delayTime, long lowerLimit, long upperLimit) {
   float duration = 0;
   int trialNum = 0;
