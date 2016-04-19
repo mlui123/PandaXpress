@@ -172,8 +172,8 @@ void motorStraight() {
   digitalWrite(in1,LOW);
   digitalWrite(in2,HIGH);
   analogWrite(ena,255);
-  digitalWrite(in3,LOW);
-  digitalWrite(in4,HIGH);
+  digitalWrite(in3,HIGH);
+  digitalWrite(in4,LOW);
   analogWrite(enb,255);
 }
 
@@ -181,8 +181,8 @@ void motorTurnRight() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   analogWrite(ena,255);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
   analogWrite(enb,255);
 }
 
@@ -190,8 +190,8 @@ void motorTurnLeft() {
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   analogWrite(ena,255);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
   analogWrite(enb,255);
 }
 
