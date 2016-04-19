@@ -63,13 +63,11 @@ void setup() {
  * use the variable 'state' to track stages of navigation
  */
 void loop() {
-  Serial.println("woohoo");
   RFLoop();
   switch(state) {
     case 0:
       break;
     case 1: //OSV is in landing zone
-      Serial.println("yay");
       turnRight(0);
       driveForwardXDirection(1);
       state = 2;
@@ -150,7 +148,6 @@ void singleSensorSetup() {
   pinMode(A1,INPUT);    //this should not be hard coded
   pinMode(trig2, OUTPUT);
   pinMode(echo2, INPUT);
-  //Serial.begin(9600);
 }
 
 /** motorSetup
@@ -201,11 +198,10 @@ void motorTurnLeft() {
  */ 
 void driveForwardXDirection(float xValue) {
   while (marker.x < xValue) {
-    //Serial.println("happy");
     motorStraight();
     RFLoop();
-    digitalWrite(green, HIGH);
-    digitalWrite(red, HIGH);
+    //digitalWrite(green, HIGH);
+    //digitalWrite(red, HIGH);
   }
 }
 
@@ -218,8 +214,8 @@ void driveForwardYDirection(float yValue) {
   while (marker.y - yValue < -(tolerance) || marker.y - yValue > tolerance) {
     motorStraight();
     RFLoop();
-    digitalWrite(green, HIGH);
-    digitalWrite(red, HIGH);
+    //digitalWrite(green, HIGH);
+    //digitalWrite(red, HIGH);
   }
 }
 
@@ -233,8 +229,8 @@ void turnLeft(float orientation) {
   while (marker.theta - orientation < -(tolerance)) {
     motorTurnLeft();
     RFLoop();
-    digitalWrite(green, LOW);
-    digitalWrite(red, HIGH);
+    //digitalWrite(green, LOW);
+    //digitalWrite(red, HIGH);
   }
 }
 
@@ -246,11 +242,10 @@ void turnLeft(float orientation) {
 void turnRight(float orientation) {
   float tolerance = (pi/12);
   while (marker.theta - orientation > tolerance) {
-    //Serial.println("sad");
     motorTurnRight();
     RFLoop();
-    digitalWrite(green, HIGH);
-    digitalWrite(red, LOW);
+    //digitalWrite(green, HIGH);
+    //digitalWrite(red, LOW);
   }
 }
 
