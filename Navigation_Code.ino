@@ -3,7 +3,7 @@ int state = 1;
 float duration, inches;       //ultrasonic reading
 boolean is_boulder_green;
 float boulder_length, boulder_height, boulder_area; 
-
+//
 /**************** Constants *****************/
 const int markerNumber = 113; //update this when receive new marker
 const float pi      = 3.14159;
