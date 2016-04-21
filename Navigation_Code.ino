@@ -1,7 +1,7 @@
 /************* Program variables ************/
 int state = 1;
 float duration, inches;       //ultrasonic reading
-boolean is_boulder_green;
+bool is_boulder_green;
 float boulder_length, boulder_height, boulder_area; 
 //
 /**************** Constants *****************/
@@ -14,7 +14,8 @@ const long lower    = 150;    //only apply when averaging multiple trials
 
 /************** Pin Variables ***************/
 int a = 1;  int b = 2; //Kaitlin, Maria, please verify the digital pin asssignments
-int c = 3;  int d = 4;
+int trig_1 = 3;  //left and top
+int trig_2 = 4; //right and side
 int e = 5;  int f = 6;
 int g = 7;  int RF_TX = 9;
 int RF_RX = 8;  int j = 10;
