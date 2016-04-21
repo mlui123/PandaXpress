@@ -350,3 +350,20 @@ long ultrasoundPing() {
 float microsecondsToInches(long microseconds) {
   return microseconds / 73.746 / 2.0;
 }
+
+// Adjusting PWM
+delta_y = y - yref;
+theta_des = -1/2 * arctan(delta_y);
+delta_theta = marker.theta-theta.des;
+if (delta_theta >= 0) {
+  anologout(left_wheel,255);
+  delta_PWM = int(abs(delta_theta*k));
+  anologout(right-wheel,255,delta_PWM);
+} else {
+  anologout(right_wheel,255);
+  delta_PWM = int(abs(delta_theta*k));
+  anologout(right_wheel,255,delta_PWM);
+  
+}
+// not sure how to switch axes
+}
