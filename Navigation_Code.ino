@@ -350,3 +350,11 @@ long ultrasoundPing() {
 float microsecondsToInches(long microseconds) {
   return microseconds / 73.746 / 2.0;
 }
+// Controlling the OSV in the up and down direction
+if(tell me to switch)
+{
+temp = x;
+x = y;
+y = temp;
+theta = theta +pi/2;
+}
