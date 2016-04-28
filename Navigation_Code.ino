@@ -284,7 +284,6 @@ void RFLoop() {
     Serial.println(marker.theta);
     //delay(500);   //got rid of the delay
     rf.sendMessage("Panda Xpress Rocks");
-    control();
   }
   else
   {
