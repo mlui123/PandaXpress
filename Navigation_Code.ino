@@ -3,7 +3,6 @@ int state = 1;
 float duration, inches;       //ultrasonic reading
 bool is_boulder_green;
 float boulder_length, boulder_height, boulder_area; 
-int mode; // mode = 0 for x direction and mode = 1 for y direction
 //
 /**************** Constants *****************/
 const int markerNumber = 113; //update this when receive new marker
