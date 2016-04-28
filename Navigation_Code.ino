@@ -3,7 +3,7 @@ int state = 1;
 float duration, inches;       //ultrasonic reading
 bool is_boulder_green;
 float boulder_length, boulder_height, boulder_area; 
-int theta_desired, delta_y,, y_ref, delta_theta, delta_PWM, k;
+int mode; // mode = 0 for x direction and mode = 1 for y direction
 //
 /**************** Constants *****************/
 const int markerNumber = 113; //update this when receive new marker
@@ -14,7 +14,7 @@ const long upper    = 1200;   //filter out unwanted data in ultrasonic reading
 const long lower    = 150;    //only apply when averaging multiple trials
 
 /************** Pin Variables ***************/
-int left_wheel = 1;  int b = 2; //Kaitlin, Maria, please verify the digital pin asssignments
+int a = 1;  int b = 2; //Kaitlin, Maria, please verify the digital pin asssignments
 int trig_1 = 3;  //left and top
 int trig_2 = 4; //right and side
 int e = 5;  int f = 6;
@@ -122,7 +122,7 @@ void loop() {
 }
 
 /************** Setup Code ******************/
-/** RFSetup
+/** RfFSetup
  * Created no date (Keystone)
  * Modified 4/17/2016 (Yichao Peng)
  * The program setup the RF communication with GPS system
@@ -285,6 +285,7 @@ void RFLoop() {
     Serial.println(marker.theta);
     //delay(500);   //got rid of the delay
     rf.sendMessage("Panda Xpress Rocks");
+    control();
   }
   else
   {
@@ -351,29 +352,43 @@ long ultrasoundPing() {
 float microsecondsToInches(long microseconds) {
   return microseconds / 73.746 / 2.0;
 }
-// Control Code x direction
-void control() {
-  delta_y = y-yref;
-  theta_desired = -1/2*arctan(delta_y);
-  delta_theta = marker.theta - theta_desired;
-  if (delta_theta > 0) {
-    analogout(left_wheel, 255);
-    delta_PWM = int(abs(delta_theta*k));
-    anologout(right_wheel, 255-delta_PWM); //right_wheel pin4? and leftwheel pin 5?
-  } else {
-    analogout(right_wheel, 255);
-    delta_PWM = int(abs(delta_theta*k));
-    analogout(left_wheel, 255-delta_PWM);
-  }
-  delta(500);
-  }
+// Control Code 
+void controlX(int xRefIn, int xTermIn) {
+  if (x.marker < xterm) {
+    delta_y = y.marker-yref;
+    theta_desired = -1/2*arctan(delta_y);
+    delta_theta = marker.theta - theta_desired;
+    if (delta_theta > 0) {
+      analogout(left_wheel, 255);
+      delta_PWM = int(abs(delta_theta*k));
+      anologout(right_wheel, 255-delta_PWM); //right_wheel pin4? and leftwheel pin 5?
+    } else {
+      analogout(right_wheel, 255);
+      delta_PWM = int(abs(delta_theta*k));
+      analogout(left_wheel, 255-delta_PWM);
+    }
+    delta(500);
+    }
+}
   
-  // Control for y direction
-  if (tell me to switch) {
-    temp = x;
-    x = y;
-    y = temp;
-    theta = theta + pi/2;
-  }
+  
+  void controlY(int yRefIn, int yTermIn) {
+  if (y.marker < yterm) {
+    delta_x = x.marker-xref;
+    theta_desired = -1/2*arctan(delta_x);
+    delta_theta = marker.theta-pi/2 - theta_desired;
+    if (delta_theta > 0) {
+      analogout(left_wheel, 255);
+      delta_PWM = int(abs(delta_theta*k));
+      anologout(right_wheel, 255-delta_PWM); //right_wheel pin4? and leftwheel pin 5?
+    } else {
+      analogout(right_wheel, 255);
+      delta_PWM = int(abs(delta_theta*k));
+      analogout(left_wheel, 255-delta_PWM);
+    }
+    delta(500);
+    }
+}
+  
   }
 }
